@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEV_SERVER_PORT }} # Use 22 if not specified
           script: |
-            cd /var/www/todo-backend
+            cd /var/www/todo-list
             git pull origin master
             composer install --no-interaction --prefer-dist --optimize-autoloader
             php artisan migrate --force
