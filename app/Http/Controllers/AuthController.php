@@ -2,21 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class AuthController extends Controller
 {
-    public function signup()
+    public function register(RegisterUserRequest $request)
     {
-        User::query()->create([
-            'name' => request('name'),
-            'email' => request('email'),
-            'password' => bcrypt('password')
-        ]);
+        User::create($request->validated());
+       return jsonResponse(201,data: $request->validated());
+    }
+
+    public function login()
+    {
+        $credentials = request(['email', 'password']);
+
+        if (!auth()->attempt($credentials)) {
+            throw new AuthorizationException('Unauthorized');
+        }
+
+        $user = auth()->user();
+
+        $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json([
-            'data' => User::query()->first()
-        ], 201);
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+        ]);
     }
 }

@@ -1,15 +1,29 @@
-name: Deploy to development
+name: Deploy to Dev Server
+
 on:
   push:
     branches:
       - master
-env:
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
 jobs:
   deploy:
-    name: Deploy Development App
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Dev Server
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.DEV_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEV_SERVER_PORT }} # Use 22 if not specified
+          script: |
+            cd /var/www/todo-backend
+            git pull origin master
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
