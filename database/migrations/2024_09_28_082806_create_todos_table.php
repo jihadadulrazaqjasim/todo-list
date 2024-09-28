@@ -1,7 +1,8 @@
 <?php
 
-    use App\Enums\TaskStatus;
-    use Illuminate\Database\Migrations\Migration;
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -17,9 +18,9 @@ return new class extends Migration
         Schema::create('todos', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description');
-            $table->enum('status', TaskStatus::getValues());
-            $table->enum('priority', ['low', 'medium', 'high']);
+            $table->text('description');
+            $table->enum('status', TaskStatus::getValues())->default(TaskStatus::PENDING);
+            $table->enum('priority', TaskPriority::getValues());
             $table->timestamp('due_date');
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->timestamps();
